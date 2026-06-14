@@ -6,7 +6,7 @@ import { Search, Loader2 } from "lucide-react";
 import { AppFrame } from "@/components/app-frame";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Label, Select } from "@/components/ui/input";
-import { Alert, PageShell } from "@/components/ui/page-shell";
+import { Alert, PageShell, PageHeader } from "@/components/ui/page-shell";
 import { Card, CardContent } from "@/components/ui/card";
 import { CATEGORIES, CATEGORY_LABELS, GENDERS, HOME_STATES } from "@/lib/constants";
 import type { InstituteMatch } from "@/types/engineering";
@@ -61,10 +61,12 @@ export default function FinderPage() {
 
   return (
     <AppFrame>
-      <PageShell
-        title="Engineering College Finder"
-        description="Enter your MHT-CET percentile and profile to find eligible engineering institutes"
-      >
+      <PageShell>
+        <PageHeader
+          eyebrow="College Finder"
+          title="Find Your Engineering College"
+          description="Enter your MHT-CET percentile and profile to find eligible engineering institutes"
+        />
         <Card className="mb-8">
           <CardContent className="p-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
