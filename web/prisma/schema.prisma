@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model AdmissionCycle {
+  id         String    @id @default(cuid())
+  year       Int
+  slug       String    @unique
+  sourceFile String?   @map("source_file")
+  rowCount   Int       @default(0) @map("row_count")
+  importedAt DateTime? @map("imported_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  entries    EngineeringEntry[]
+
+  @@map("admission_cycles")
+}
+
+model EngineeringEntry {
+  id                 String         @id @default(cuid())
+  cycleId            String         @map("cycle_id")
+  cycle              AdmissionCycle @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+  year               Int
+  capRound           String         @map("cap_round")
+  instituteCode      String         @map("institute_code")
+  instituteName      String         @map("institute_name")
+  courseCode         String         @map("course_code")
+  courseName         String         @map("course_name")
+  seatSection        String?        @map("seat_section")
+  meritNo            Int?           @map("merit_no")
+  srMeritNo          Int?           @map("sr_merit_no")
+  mhtCetScore        Decimal?       @map("mht_cet_score") @db.Decimal(10, 7)
+  applicationId      String         @map("application_id")
+  candidateName      String         @map("candidate_name")
+  gender             String
+  candidateCategory  String         @map("candidate_category")
+  seatType           String         @map("seat_type")
+  sourcePdf          String?        @map("source_pdf")
+  createdAt          DateTime       @default(now()) @map("created_at")
+
+  @@index([cycleId])
+  @@index([cycleId, seatType])
+  @@index([cycleId, instituteCode, seatType])
+  @@index([cycleId, courseCode, seatType])
+  @@index([cycleId, mhtCetScore])
+  @@index([instituteCode, courseCode])
+  @@map("engineering_entries")
+}
