@@ -121,7 +121,7 @@ export async function searchInstitutes(
         yearProb,
         median: bestMedian,
         top: bestMax,
-        waitlistCount: Number(yearRows.reduce((sum, r) => sum + r.waitlist_count, 0n)),
+        waitlistCount: Number(yearRows.reduce((sum, r) => sum + r.waitlist_count, BigInt(0))),
         hasData: true,
       });
     }
