@@ -14,7 +14,7 @@ import {
 import { refreshCutoffStats, initializeCutoffView } from "../src/lib/queries";
 import { prisma } from "../src/lib/prisma";
 
-const BATCH_SIZE = 2_000;
+const BATCH_SIZE = 5_000; // Larger batches for faster import
 
 type CsvRow = Record<string, string>;
 
@@ -112,9 +112,19 @@ async function flushBatch(cycleId: string, batch: EngineeringEntryInput[]): Prom
     return;
   }
 
-  await prisma.engineeringEntry.createMany({
-    data: batch.map((entry) => ({ ...entry, cycleId })),
-  });
+  // Use raw SQL for faster inserts with UUID generation
+  const values = batch.map((entry) => 
+    `(gen_random_uuid()::text, '${entry.year}', '${entry.capRound}', '${entry.instituteCode}', '${entry.instituteName.replace(/'/g, "''")}', '${entry.courseCode}', '${entry.courseName.replace(/'/g, "''")}', ${entry.seatSection ? `'${entry.seatSection}'` : 'NULL'}, ${entry.meritNo}, ${entry.srMeritNo}, ${entry.mhtCetScore}, '${entry.applicationId}', '${entry.candidateName.replace(/'/g, "''")}', '${entry.gender}', '${entry.candidateCategory}', '${entry.seatType}', ${entry.sourcePdf ? `'${entry.sourcePdf.replace(/'/g, "''")}'` : 'NULL'}, '${cycleId}', NOW())`
+  ).join(',');
+
+  await prisma.$executeRawUnsafe(`
+    INSERT INTO engineering_entries (
+      id, year, cap_round, institute_code, institute_name, course_code, course_name,
+      seat_section, merit_no, sr_merit_no, mht_cet_score, application_id,
+      candidate_name, gender, candidate_category, seat_type, source_pdf,
+      cycle_id, created_at
+    ) VALUES ${values}
+  `);
 }
 
 async function importDataset(dataset: EngineeringDatasetConfig): Promise<number> {
