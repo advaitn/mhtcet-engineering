@@ -1,4 +1,4 @@
-import type { CollegeMatch } from "@/types/merit";
+import type { InstituteMatch } from "@/types/engineering";
 
 function escapeCsv(value: string | number): string {
   const text = String(value);
@@ -8,25 +8,19 @@ function escapeCsv(value: string | number): string {
   return text;
 }
 
-export function collegeMatchesToCsv(matches: CollegeMatch[]): string {
+export function instituteMatchesToCsv(matches: InstituteMatch[]): string {
   const headers = [
-    "MS OPEN Rank",
-    "MS OPEN Median %",
-    "College",
-    "Division",
-    "University",
+    "Institute",
+    "Course",
     "Match",
     "Chance %",
     "Trend",
-    "Avg Pool Median %",
-    "2023 Chance %",
-    "2023 Pool Median %",
-    "2023 Cohort Size",
+    "Avg Median %",
     "2024 Chance %",
-    "2024 Pool Median %",
+    "2024 Median %",
     "2024 Cohort Size",
     "2025 Chance %",
-    "2025 Pool Median %",
+    "2025 Median %",
     "2025 Cohort Size",
   ];
 
@@ -34,22 +28,16 @@ export function collegeMatchesToCsv(matches: CollegeMatch[]): string {
     const byYear = Object.fromEntries(match.years.map((y) => [y.year, y]));
 
     return [
-      match.msOpenRank,
-      match.msOpenMedian.toFixed(2),
-      match.collegeName,
-      match.divisionName,
-      match.universityName,
+      match.instituteName,
+      match.courseName,
       match.matchLabel,
-      match.chancePercent,
+      match.chancePercent.toFixed(2),
       match.trend,
       match.avgMedian > 0 ? match.avgMedian.toFixed(2) : "",
-      byYear[2023]?.hasData ? byYear[2023].yearProb : "",
-      byYear[2023]?.hasData ? byYear[2023].median.toFixed(2) : "",
-      byYear[2023]?.hasData ? byYear[2023].waitlistCount : "",
-      byYear[2024]?.hasData ? byYear[2024].yearProb : "",
+      byYear[2024]?.hasData ? byYear[2024].yearProb?.toFixed(2) : "",
       byYear[2024]?.hasData ? byYear[2024].median.toFixed(2) : "",
       byYear[2024]?.hasData ? byYear[2024].waitlistCount : "",
-      byYear[2025]?.hasData ? byYear[2025].yearProb : "",
+      byYear[2025]?.hasData ? byYear[2025].yearProb?.toFixed(2) : "",
       byYear[2025]?.hasData ? byYear[2025].median.toFixed(2) : "",
       byYear[2025]?.hasData ? byYear[2025].waitlistCount : "",
     ];
@@ -70,11 +58,10 @@ export function downloadCsv(filename: string, content: string): void {
   URL.revokeObjectURL(url);
 }
 
-export function rankedCollegesToCsv(
+export function rankedInstitutesToCsv(
   rows: Array<{
-    collegeName: string;
-    divisionName: string;
-    universityName: string;
+    instituteName: string;
+    courseName: string;
     year: number;
     cutoff: number;
     median: number;
@@ -84,9 +71,8 @@ export function rankedCollegesToCsv(
 ): string {
   const headers = [
     "Rank",
-    "College",
-    "Division",
-    "University",
+    "Institute",
+    "Course",
     "Year",
     "Median %",
     "Cutoff %",
@@ -96,10 +82,9 @@ export function rankedCollegesToCsv(
 
   const data = rows.map((row, index) => [
     index + 1,
-    row.collegeName,
-    row.divisionName,
-    row.universityName,
-    row.year || "3-yr avg",
+    row.instituteName,
+    row.courseName,
+    row.year || "2-yr avg",
     row.median.toFixed(2),
     row.cutoff.toFixed(2),
     row.top.toFixed(2),
